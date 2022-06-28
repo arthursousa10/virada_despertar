@@ -151,3 +151,7 @@ body {
     color: aqua;
     background: blueviolet;
 }
+
+.show-winning-message {
+    display: flex;
+}
