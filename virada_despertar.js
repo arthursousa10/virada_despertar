@@ -2,7 +2,7 @@ const cellElements = document.querySelectorAll("[data-cell]");
 const board = document.querySelector("[data-board]");
 const winningMessageTextElement = document.querySelector("[data-winning-message-text]");
 const winningMessage = document.querySelector("[data-winning-message]");
-const restartButton = document.querySelector("[data-restart-button]")
+const restartButton = document.querySelector("[data-restart-button]");
 
 let isCircleTurn = false;
 
@@ -17,14 +17,20 @@ const winningCombinations = [
     [2, 4, 6]
 ];
 
-const sartGame = () => {
+const startGame = () => {
+    isCircleTurn = false;
+
     for (const cell of cellElements) {
+        cell.classList.remove("circle");
+        cell.classList.remove("x");
+        cell.removeEventListener("click", handleClick);
         cell.addEventListener("click", handleClick, { once: true })
     }
-    isCircleTurn = false
-    board.classList.add("x");
-    winningMessage.classList.remove("show-winning-message")
-}
+    
+    
+    setBoardHouverClass();
+    winningMessage.classList.remove("show-winning-message");
+} ; 
 
 function endGame(isdraw) {
     if (isdraw) {
@@ -33,7 +39,7 @@ function endGame(isdraw) {
         winningMessageTextElement.innerText = isCircleTurn ? "O Venceu!" : "X Venceu!";
     }
     winningMessage.classList.add("show-winning-message");
-}
+};
 
 const checkForWin = (currentplayer) => {
     return winningCombinations.some(combination => {
@@ -43,22 +49,33 @@ const checkForWin = (currentplayer) => {
     });
 };
 
+const checkForDraw = () => {
+    return [... cellElements].every(cell => {
+       return cell.classList.contains("x") || cell.classList.contains("circle");
+    });
+};
+
 const placeMark = (cell, classToAdd) => {
     cell.classList.add(classToAdd);
+};
+
+const setBoardHouverClass = () => {
+    board.classList.remove('circle')
+    board.classList.remove('x')
+
+    if (isCircleTurn) {
+        board.classList.add('circle')
+    } else {
+        board.classList.add('x')
+    }
 }
 
 const swapTurns = () => {
-        isCircleTurn = !isCircleTurn;
+    isCircleTurn = !isCircleTurn;
 
-        board.classList.remove('circle')
-        board.classList.remove('x')
+    setBoardHouverClass();
 
-        if (isCircleTurn){
-            board.classList.add('circle')
-        } else {
-            board.classList.add('x')
-        }
-}
+};
 
 const handleClick = (e) => {
     //Colocar a marca (x ou circulo)
@@ -69,20 +86,23 @@ const handleClick = (e) => {
     
     //Verificar por vitória
     const isWin = checkForWin(classToAdd);
+    
+    //Verificar por empate
+    const isDraw = checkForDraw();
+    
     if (isWin) {
         endGame(false);
+    } else if (isDraw) {
+        endGame(true)
+    } else {
+        //Mudar símbolo
+        swapTurns();
     }
-    //Verificar por empate
-
     
-    
-    //Mudar símbolo
-
-    swapTurns();
 };
 
 for (const cell of cellElements) {
     cell.addEventListener("click", handleClick, { once: true })
-}
+};
 
-restartButton.addEventListener("click", startGame)
+restartButton.addEventListener("click", startGame);
